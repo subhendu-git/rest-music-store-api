@@ -1,0 +1,209 @@
+Documentation
+=============
+
+Assumptions
+-----------
+- Only one user in the system, so no separate controller for user actions
+- Songs can belong to an artist, but album is optional 
+- Underlying database will enforce referential integrity, sqlite3 does not 
+  support it.
+
+
+Possible Future Enhancements
+-------------------
+- Versioning
+- Subdomaining the api under same domain
+- Add user controller for user management
+- i18n support
+- Add documentation like RDoc/Apipie/Yard
+
+Setup
+-----
+- Change the database credentials in config/database.yml
+- rake db:migrate
+- rake db:seed
+- run `rake test test/`
+
+Authentication
+--------------
+- Step1 Request at this endpoint to get token
+    GET /token
+    Content-Type: application/json
+    Authorization: Basic dXNlckBleGFtcGxlLmNvbTpwYXNzd29yZA==
+    
+    (Use the following credentials test:1234)
+
+- Step2 Use the token in Authorization header for future reuests
+
+
+Listing Artist/Album/Song
+-------------------------
+- List all artists/albums/songs
+    GET /api/#{artists|albums|songs}
+    Content-Type: application/json
+    Authorization: Token d412a8f74507c0443a08e38e30474e85
+
+    - Sample Response
+    {
+      "artists": [
+        {
+          "id": 1,
+          "name": "Chris Martin",
+          "birthdate": "1977-03-02"
+        },
+        {
+          "id": 2,
+          "name": "Adele",
+          "birthdate": "1988-05-05"
+        },
+        {
+          "id": 3,
+          "name": "Bob Dylan",
+          "birthdate": "1941-05-24"
+        }
+      ]
+    }
+    
+    - Error Codes
+    401 Unauthorized
+    
+- Show specific artist/album/song
+    GET /api/#{artists|albums|songs}/1 
+    Content-Type: application/json
+    Authorization: Token d412a8f74507c0443a08e38e30474e85
+    
+    - Sample Response
+    {
+      "artist": {
+        "id": 1,
+        "name": "Chris Martin",
+        "birthdate": "1977-03-02"
+      }
+    }
+    
+    - Error Codes
+    401 Unauthorized
+    404 Not Found
+
+
+Filtering Albums
+----------------
+Use the following query_params to filter albums
+- artist_id
+
+Example
+GET /api/albums?artist_id=1
+
+
+
+Filtering Songs
+---------------
+Use the following query_params to filter songs
+- artist_id, album_id
+
+Example
+GET /api/songs?album_id=3
+GET /api/songs?artist_id=1&album_id=2
+
+
+
+Create/Update an Artist
+-----------------------
+Example
+    POST /api/artists
+    Content-Type: application/json
+    Authorization: Token d412a8f74507c0443a08e38e30474e85
+    
+    {
+      "artist": {
+        "name": "Chris Martin",
+        "birthdate": "1977-03-02"
+      }
+    }
+    -----------------------------------------------------
+    PATCH /api/artists/4
+    Content-Type: application/json
+    Authorization: Token d412a8f74507c0443a08e38e30474e85
+    
+    {
+      "artist": {
+        "name": "Jimmy",
+        "birthdate": null
+      }
+    }
+    
+
+
+
+Create/Update an Album
+-----------------------
+Example
+    POST /api/albums
+    Content-Type: application/json
+    Authorization: Token d412a8f74507c0443a08e38e30474e85
+    
+    {
+      "album": {
+        "name": "Best of Coldplay",
+        "price": 15.89,
+        "artist_id": 1
+      }
+    }
+    -----------------------------------------------------
+    PATCH /api/albums/4
+    Content-Type: application/json
+    Authorization: Token d412a8f74507c0443a08e38e30474e85
+    
+    {
+      "artist": {
+        "name": "Double Samsh",
+        "price": 12.99,
+        "artist_id": 2
+      }
+    }
+
+
+
+
+Create/Update a Song
+-----------------------
+Example
+    POST /api/songs
+    Content-Type: application/json
+    Authorization: Token d412a8f74507c0443a08e38e30474e85
+    
+    {
+      "song": {
+        "name": "Sound of Silence",
+        "genre": "Rock",
+        "time": 259,
+        "price": 2.99,
+        "album_id": null,
+        "artist_id": 1
+      }
+    }
+    -----------------------------------------------------
+    PATCH /api/songs/4
+    Content-Type: application/json
+    Authorization: Token d412a8f74507c0443a08e38e30474e85
+    
+    {
+      "song": {
+        "genre": "Rock",
+        "time": 259,
+        "price": 2.99,
+        "album_id": 4,
+        "artist_id": 1
+      }
+    }
+
+    
+
+
+Delete Artist/Album/Song
+------------------------
+Example
+DELETE /api/#{artists|albums|songs}/1
+Content-Type: application/json
+Authorization: Token d412a8f74507c0443a08e38e30474e85
+
